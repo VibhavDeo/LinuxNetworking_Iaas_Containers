@@ -1,0 +1,16 @@
+customer_name: vd_test
+customer_id: 12
+vpcs:
+  - vpc_name: india
+    subnet_details:
+      - subnet_name:  vd_test_india1
+        subnet_ip: 10.10.10.0  
+        subnet_mask: 24
+      - subnet_name:  vd_test_india2
+        subnet_ip: 10.10.11.0  
+        subnet_mask: 24
+  - vpc_name: usa
+    subnet_details:
+      - subnet_name:  vd_test_usa
+        subnet_ip: 11.11.11.0
+        subnet_mask: 24

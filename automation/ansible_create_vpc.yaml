@@ -1,0 +1,64 @@
+---
+- name: Create a Customer Router Namespace
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - variables/create_vpc_variables.yml
+  # vars:
+  #   pub_namespace: public
+  #   vpc_id: c2v2
+  #   ep_in_pub: ve_c2v2_pns
+  #   ep_in_vpc: ve_c2v2_v
+  #   pub_ns_ip: 11.11.11.1
+  #   pub_vpc_ep_ip: 11.11.11.1/30
+  #   vpc_ep_ip: 11.11.11.2/30
+  #   vpc_subnet: 11.11.11.0/30
+  #   public_route_inf: ve_ns
+          
+  tasks:
+    - name: Create Namespaces
+      become: yes
+      community.general.ip_netns:
+        name: "{{ vpc_id }}"
+        state: present
+
+    - name: Creat veth pairs
+      become: yes
+      ansible.builtin.command: "sudo ip link add {{ ep_in_pub }} type veth peer name {{ ep_in_vpc }}"
+
+    - name: Attach vpc_NS to the ns ends of the veth pairs
+      ansible.builtin.command: "sudo ip link set {{ep_in_vpc}} netns {{vpc_id}}"
+
+    - name: Attach public_ns to the ns ends of the veth pairs
+      ansible.builtin.command: "sudo ip link set {{ep_in_pub}} netns {{ pub_namespace }}"
+
+    - name: Ensure that NS interface is UP
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip link set {{ep_in_vpc}} up"
+
+    - name: Ensure that public_NS interface is UP
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} ip link set {{ep_in_pub}} up"
+
+    - name: Assign IP address to each veth endpoint interface- pub_ns
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} ip addr add {{ pub_vpc_ep_ip }} dev {{ep_in_pub}} "
+
+    - name: Assign IP address to each veth endpoint interface- namespace
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip addr add {{ vpc_ep_ip }} dev {{ep_in_vpc}}"
+
+    - name: Add default route to the NS
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip route add default via {{ pub_ns_ip }} dev {{ep_in_vpc}}"
+
+    - name: Configure the DNS
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} sed -i 's/^nameserver 127.0.0.53/nameserver 8.8.8.8/' /etc/resolv.conf"
+        
+    - name: Add SNAT for public
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} iptables -t nat -I POSTROUTING 1 -s {{ vpc_subnet }} -o {{ public_route_inf }} ! -d {{ vpc_subnet }} -j MASQUERADE"
+        
+    - name: Traffic isolation using packet dropping
+      become: yes
+      command: "sudo ip netns exec {{ vpc_id }} iptables -A FORWARD -j DROP"
+    
+    - name: Add ACCEPT rule from VPC interface to Internet interface
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} iptables -I FORWARD -i {{ public_route_inf }} -o {{ ep_in_pub }} -j ACCEPT"
+        
+    - name: Add ACCEPT rule from internet interface to VPC interface
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} iptables -I FORWARD -o {{ public_route_inf }} -i {{ ep_in_pub }} -j ACCEPT"

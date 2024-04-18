@@ -1,0 +1,103 @@
+#c = customer
+#v = vpc
+#s = subnet
+#b = bridge
+#n = network
+#ve = veth
+#vm = virtual machine
+#pns = public namespace
+---
+- name: Provision a new subnet in a VPC
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - variables/create_subnet_variables.yml
+  # vars:
+  #   pub_namespace: public
+  #   vpc_id: c2v2 # customerid's vpcid
+  #   br_id: bc2v2s1 # bridge of customeridvpcid's subnetid
+  #   veth_brv_br_inf: ve_c2v2s1_b # veth pair of bridgeid (birdge and vpc), bridge end
+  #   veth_brv_v_inf: ve_c2v2s1_v # veth pair of bridgeid (birdge and vpc), vpc end
+  #   veth_vpns_v_inf: ve_c2v2_v # veth pair of vpcid (vpc and namespace), vpc end
+  #   d: nc2v2s1 # network of customeridvpcid's subnetid
+  #   veth_brv_v_inf_ip: 20.1.1.1/24 # veth pair of bridgeid (birdge and vpc), vpc end's ip         # {{ subnet_prefix }}.1/30
+  #   subnet_ip: 20.1.1.0/24 # subnet ip
+  #   template_dir: "/home/vmadm/project/automation/jinja_templates"
+  #   script_files_dir: "/home/vmadm/project/subnet_files"
+
+  tasks:   
+  
+  #-----------------------------------BRIDGE CREATION----------------------------------------------
+    - name: Create a Linux Bride
+      become: yes
+      ansible.builtin.command: "sudo brctl addbr {{ br_id }}"
+
+    - name: Ensure Bridge is up
+      become: yes
+      ansible.builtin.command: "sudo ip link set dev {{ br_id }} up"
+    
+  #-----------------------------------NETWORK CREATION----------------------------------------------
+    - name: Create the directory
+      ansible.builtin.file:
+        path: "{{ script_files_dir }}/{{ network_id }}"
+        state: directory
+
+    - name: Copy network XML files to libvirt directory
+      template:
+        src: "{{ template_dir }}/network_definition.j2"
+        dest: "{{ script_files_dir }}/{{ network_id }}/{{ network_id }}.xml"
+      become: yes
+    
+    - name: Define network
+      community.libvirt.virt_net:
+        command: define
+        name: "{{ network_id }}"
+        xml: "{{ lookup('file', script_files_dir + '/' + network_id + '/' + network_id + '.xml') }}"
+      become: yes
+
+    - name: Start the defined network
+      community.libvirt.virt_net:
+        command: start
+        name: "{{ network_id }}"
+
+    # - name: Define network using virsh
+    #   command: sudo virsh net-define "{{ script_files_dir }}/{{ network_id }}/{{ network_id }}.xml"
+    #   become: yes
+
+    # - name: Start the defined network
+    #   command: "virsh net-start {{ network_id }}"
+    #   become: yes
+
+   #----------------------------------- NAMESPACE Connection ---------------------------------------------------- 
+    - name: Creat veth pairs between bridge and NS
+      become: yes
+      ansible.builtin.command: "sudo ip link add {{ veth_brv_br_inf }} type veth peer name {{ veth_brv_v_inf }}"
+  
+    - name: Attach NS to the ns ends of the veth pairs
+      ansible.builtin.command: "sudo ip link set {{ veth_brv_v_inf }} netns {{ vpc_id }}"
+    
+    - name: Ensure that NS interface is UP
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip link set {{ veth_brv_v_inf }} up"
+
+    - name: Attach bridge endpoint to the br end
+      ansible.builtin.command: "sudo ip link set {{ veth_brv_br_inf }} master {{ br_id }}"
+    
+    - name: Ensure that bridge interface is UP
+      ansible.builtin.command: "sudo ip link set {{ veth_brv_br_inf }} up"
+
+    - name: Assign IP address to veth vpc endpoint interface
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip addr add {{ veth_brv_v_inf_ip }} dev {{ veth_brv_v_inf }}"
+
+    - name: Add NS IP rule for SNAT
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} iptables -t nat -I POSTROUTING 1 -s {{ subnet_ip }} -o {{ veth_vpns_v_inf }} ! -d {{ subnet_ip }} -j MASQUERADE"
+
+    - name: Allow traffic between interface pairs
+      become: yes
+      ansible.builtin.command:
+        cmd: "ip netns exec {{ vpc_id }} iptables -I FORWARD 1 -i {{ veth_vpns_v_inf }} -o {{ veth_brv_v_inf }} -j ACCEPT"
+      
+
+    - name: Allow traffic between reverse interface pairs
+      become: yes
+      ansible.builtin.command:
+        cmd: "ip netns exec {{ vpc_id }} iptables -I FORWARD 1 -i {{ veth_brv_v_inf }} -o {{ veth_vpns_v_inf }} -j ACCEPT"

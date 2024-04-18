@@ -1,0 +1,36 @@
+#cloud-config
+disable_root: false
+ssh_authorized_keys:
+- ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCg95E/ZPdzWYkPLypcdOHC/QFLoUKM0112PE1rPY9wRG2xaRWr5NMYVbR/C/QAOXY/qYYidxq8N3zPAuo6p1HeVhnxaLwHRdvYODlxfzF7bPoeSHtnMG+o0K/ePEyFVaaDJbeEwaxeDS1SQFuB7KNXt/HKJVsyXh00wLy6b1ZLXzAmSSERxdQbOdpLnlKxX8uuryME6GTels2QG/WSWc+8xUDdsBSVLmV53Zofg0PYcznYb5Yz9Lfokfn/dWQfEs8Off92plmU7rhatb2I3h+P1gLHuj5Bhi3yY6h4pxaBJluPTL4FXykRHNVdLoUhkJ0EUsoYhdOQ4qe9dxnDS19P
+users:
+- default
+- name: root
+  lock_passwd: false
+  plain_text_passwd: 'root'
+  
+write_files:
+  - path: /etc/netplan/50-cloud-init.yaml
+    content: |
+        network:
+         version: 2
+         ethernets:
+          {{ interface_name }}:
+           addresses: [ {{ vm_ip }} ]
+
+  - path: /root/main.py
+    content: |
+{{ content }}
+
+  - path: /root/data.txt
+    content: |
+{{ optional_content }}
+
+runcmd:
+  - ['sh', '-c', 'netplan generate']
+  - ['sh', '-c', 'netplan apply']
+  - ['sh', '-c', 'sudo ip route add default via  {{ subnet_ip }} dev enp1s0 ']
+  - ['sh', '-c', "sudo sed -i 's/^nameserver 127.0.0.53/nameserver 8.8.8.8/' /etc/resolv.conf"]
+  - ['sh', '-c', 'apt update']
+  - ['sh', '-c', 'sudo apt install python3-flask --yes']
+  - ['sh', '-c', 'sudo apt install python3-apscheduler --yes']
+  - ['sh', '-c', 'python3 /root/main.py&']

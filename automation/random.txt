@@ -1,0 +1,15 @@
+sudo ip link set dev c1_vpc1_br1 down
+sudo brctl delbr  c1_vpc1_br1
+
+sudo virsh net-undefine c1_vpc1_nw1
+sudo virsh net-destroy c1_vpc1_nw1
+
+sudo virsh destroy c1_vpc1_br1_vm1
+
+cd /var/lib/libvirt/images/
+sudo rm c1_vpc1_br1_vm1 -r
+
+
+
+cd ~/project/automation
+

@@ -1,0 +1,179 @@
+{
+    "john": {
+        "customer_name": "john",
+        "customer_id": 1,
+        "vpcs": {
+            "VPC1": {
+                "vpc_name": "VPC1",
+                "vpc_id": 1,
+                "vpc_ip": "72.187.127",
+                "_Timestamp_": "2024-03-29 16:32:14.000733",
+                "_Status_": "IN_PROGRESS",
+                "subnet_details": {
+                    "subnet1": {
+                        "subnet_name": "subnet1",
+                        "subnet_ip": "10.10.10.0",
+                        "subnet_mask": 24,
+                        "subnet_id": 1,
+                        "incoming_dnat_routing_port": "9719",
+                        "vm_details": {
+                            "2": {
+                                "memory": 1024,
+                                "vcpu": 1
+                            },
+                            "3": {
+                                "memory": 1024,
+                                "vcpu": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "VPC2": {
+                "vpc_name": "VPC2",
+                "vpc_id": 2,
+                "vpc_ip": "19.220.13",
+                "subnet_details": {
+                    "subnet2": {
+                        "subnet_name": "subnet2",
+                        "subnet_ip": "11.11.11.0",
+                        "subnet_mask": 24,
+                        "subnet_id": 1,
+                        "incoming_dnat_routing_port": "6439",
+                        "vm_details": {
+                            "2": {
+                                "memory": 2048,
+                                "vcpu": 2
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "johnny": {
+        "customer_name": "johnny",
+        "customer_id": 2,
+        "_Timestamp_": "2024-03-29 23:46:19.078898",
+        "_Status_": "CREATED",
+        "vpcs": {
+            "VPC1": {
+                "vpc_name": "VPC1",
+                "vpc_id": 1,
+                "vpc_ip": "221.220.39",
+                "_Timestamp_": "2024-03-29 23:47:31.078083",
+                "_Status_": "CREATED",
+                "subnet_details": {
+                    "subnet1": {
+                        "subnet_name": "subnet1",
+                        "subnet_ip": "10.10.10.0",
+                        "subnet_mask": 24,
+                        "subnet_id": 1,
+                        "incoming_dnat_routing_port": "4910",
+                        "_Timestamp_": "2024-03-29 23:48:42.331893",
+                        "_Status_": "CREATED",
+                        "vm_details": {
+                            "VM1": {
+                                "vm_name": "VM1",
+                                "memory": 1024,
+                                "vcpu": 1,
+                                "vm_id": 2,
+                                "_Timestamp_": "2024-03-29 23:50:44.270706",
+                                "_Status_": "CREATED"
+                            },
+                            "VM2": {
+                                "memory": 1024,
+                                "vcpu": 1,
+                                "vm_name": "VM2",
+                                "vm_id": 3,
+                                "_Timestamp_": "2024-03-29 23:50:44.385133",
+                                "_Status_": "CREATED"
+                            }
+                        }
+                    }
+                }
+            },
+            "VPC2": {
+                "vpc_name": "VPC2",
+                "vpc_id": 2,
+                "vpc_ip": "255.218.66",
+                "_Timestamp_": "2024-03-29 23:47:31.189871",
+                "_Status_": "CREATED",
+                "subnet_details": {
+                    "subnet2": {
+                        "subnet_name": "subnet2",
+                        "subnet_ip": "11.11.11.0",
+                        "subnet_mask": 24,
+                        "subnet_id": 1,
+                        "incoming_dnat_routing_port": "9415",
+                        "_Timestamp_": "2024-03-29 23:48:42.448158",
+                        "_Status_": "CREATED",
+                        "vm_details": {
+                            "VM1": {
+                                "memory": 2048,
+                                "vcpu": 2,
+                                "vm_name": "VM1",
+                                "vm_id": 2,
+                                "_Timestamp_": "2024-03-29 23:50:44.496856",
+                                "_Status_": "CREATED"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "test": {
+        "customer_name": "test",
+        "customer_id": 3,
+        "_Timestamp_": "2024-03-29 23:46:19.078898",
+        "_Status_": "CREATED",
+        "vpcs": {
+            "VPC1": {
+                "vpc_name": "VPC1",
+                "vpc_id": 1,
+                "vpc_ip": "106.103.34",
+                "_Timestamp_": "2024-03-31 13:03:25.747228",
+                "_Status_": "IN_PROGRESS",
+                "subnet_details": {
+                    "subnet1": {
+                        "subnet_name": "subnet1",
+                        "subnet_ip": "10.10.10.0",
+                        "subnet_mask": 24,
+                        "subnet_id": 1,
+                        "incoming_dnat_routing_port": "7076",
+                        "_Timestamp_": "2024-03-31 13:35:24.376283",
+                        "_Status_": "IN_PROGRESS"
+                    }
+                }
+            },
+            "VPC2": {
+                "vpc_name": "VPC2",
+                "vpc_id": 2,
+                "vpc_ip": "26.85.254",
+                "_Timestamp_": "2024-03-31 13:03:25.752615",
+                "_Status_": "IN_PROGRESS",
+                "subnet_details": {
+                    "subnet1": {
+                        "subnet_name": "subnet1",
+                        "subnet_ip": "10.10.10.0",
+                        "subnet_mask": 24,
+                        "subnet_id": 1,
+                        "incoming_dnat_routing_port": "2761",
+                        "_Timestamp_": "2024-03-31 13:35:24.383818",
+                        "_Status_": "IN_PROGRESS"
+                    },
+                    "subnet2": {
+                        "subnet_name": "subnet2",
+                        "subnet_ip": "11.11.11.0",
+                        "subnet_mask": 24,
+                        "subnet_id": 2,
+                        "incoming_dnat_routing_port": "6588",
+                        "_Timestamp_": "2024-03-31 13:35:24.393368",
+                        "_Status_": "IN_PROGRESS"
+                    }
+                }
+            }
+        }
+    }
+}

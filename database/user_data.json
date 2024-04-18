@@ -1,0 +1,82 @@
+{
+    "priya": {
+        "name": "priya",
+        "customer_pwd": "p",
+        "customer_addr": "priya",
+        "customer_id": 1
+    },
+    "john": {
+        "customer_name": "john",
+        "customer_id": 2,
+        "vpcs": {
+            "VPC3": {
+                "vpc_name": "VPC3",
+                "vpc_id": 3,
+                "vpc_ip": "123.161.198",
+                "subnet_details": {
+                    "subnet1": {
+                        "subnet_name": "subnet1",
+                        "subnet_ip": "192.168.151.0",
+                        "subnet_id": 1
+                    },
+                    "subnet2": {
+                        "subnet_name": "subnet2",
+                        "subnet_ip": "192.168.152.0",
+                        "subnet_id": 2
+                    },
+                    "subnet3": {
+                        "subnet_name": "subnet3",
+                        "subnet_ip": "192.168.153.0",
+                        "subnet_id": 3,
+                        "vm_details": {
+                            "2": {
+                                "memory": 1024,
+                                "vcpu": 1
+                            },
+                            "3": {
+                                "memory": 2048,
+                                "vcpu": 2
+                            },
+                            "4": {
+                                "memory": 1024,
+                                "vcpu": 1
+                            },
+                            "5": {
+                                "memory": 2048,
+                                "vcpu": 2
+                            }
+                        }
+                    }
+                }
+            },
+            "VPC4": {
+                "vpc_name": "VPC4",
+                "vpc_id": 4,
+                "vpc_ip": "73.160.198",
+                "subnet_details": {
+                    "subnet1": {
+                        "subnet_name": "subnet1",
+                        "subnet_ip": "192.168.151.0",
+                        "subnet_id": 1
+                    },
+                    "subnet3": {
+                        "subnet_name": "subnet3",
+                        "subnet_ip": "192.168.153.0",
+                        "subnet_id": 2,
+                        "incoming_dnat_routing_port": "9535",
+                        "vm_details": {
+                            "2": {
+                                "memory": 1024,
+                                "vcpu": 1
+                            },
+                            "3": {
+                                "memory": 1024,
+                                "vcpu": 1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

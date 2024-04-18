@@ -1,0 +1,9 @@
+ep_in_pub: ve_c2v2_pns
+ep_in_vpc: ve_c2v2_v
+pub_namespace: public
+pub_ns_ip: 255.218.66.1
+pub_vpc_ep_ip: 255.218.66.1/30
+public_route_inf: ve_ns
+vpc_ep_ip: 255.218.66.2/30
+vpc_id: c2v2
+vpc_subnet: 255.218.66.0/30

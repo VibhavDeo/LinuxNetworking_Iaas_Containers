@@ -1,0 +1,8 @@
+customer_name: Enter your name
+customer_id: Enter your ID
+vpcs:
+  - vpc_name: Enter your VPC name
+    subnet_details:
+      - subnet_name:  Enter subnet name
+        subnet_ip: 192.168.x.y
+        subent_mask: 24  

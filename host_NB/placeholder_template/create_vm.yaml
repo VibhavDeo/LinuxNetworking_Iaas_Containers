@@ -1,0 +1,11 @@
+customer_name: Enter your name
+customer_id: Enter your ID
+vpcs:
+  - vpc_name: Enter your VPC name
+    subnet_details:
+      - subnet_name:  Enter subnet name
+        vm_details: 
+          - vm_name: Enter a vm name
+            memory: Enter memory limit
+            vcpu: Enter number of vcpus
+  

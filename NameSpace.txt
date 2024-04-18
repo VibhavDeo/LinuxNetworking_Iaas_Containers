@@ -1,0 +1,73 @@
+##Prerequisites
+# subnet bridge net2 with vm1-1 attached, to the libvirt bridge mode network nsnet1
+# UP the interface link, add ips in the subnet range (10.1.0.2/24), add default route through enp1s0 to the gateway
+
+# subnet bridge net3 with a vm2-1 attached, to the libvirt bridge mode network nsnet2
+# UP the interface link, add ips in the subnet range (10.2.0.2/24), add default route through enp1s0 to the gateway
+
+#creates namespace router [vpc router]
+sudo ip netns add routerNS
+
+#veth pair to join vpc router to host
+sudo ip link add vph-e1 type veth peer vpt1-e2
+sudo ip link set vpt1-e2 netns routerNS
+
+#veth pair to join vpc router to subnet bridge
+sudo ip link add vph-br-e1 type veth peer vpt1-br-e2
+sudo ip link set vpt1-br-e2 netns routerNS
+
+####
+#veth pair to join vpc router to subnet bridge
+sudo ip link add vph-br2-e1 type veth peer vpt1-br2-e2
+sudo ip link set vpt1-br2-e2 netns routerNS
+
+#set subnet bridge links UP
+sudo ip link set up vph-br-e1
+
+####
+#set subnet bridge links UP
+sudo ip link set up vph-br2-e1
+
+#set host link up
+sudo ip link set up vph-e1
+
+#set vpc links UP
+sudo ip netns exec routerNS ip link set up vpt1-e2
+sudo ip netns exec routerNS ip link set up vpt1-br-e2
+####
+sudo ip netns exec routerNS ip link set up vpt1-br2-e2
+
+# Adding veth to the bridge
+sudo brctl addif net2 vph-br-e1
+
+####
+# Adding veth to the bridge
+sudo brctl addif net3 vph-br2-e1
+
+# adding ip address to the vpc router interface connected to the subnet bridge (subnet gateway)
+sudo ip netns exec routerNS ip addr add 10.1.0.1/24 dev vpt1-br-e2
+
+####
+# adding ip address to the vpc router interface connected to the subnet bridge (subnet gateway)
+sudo ip netns exec routerNS ip addr add 10.2.0.1/24 dev vpt1-br2-e2
+
+# adding ip address to the host interface connected to vpc router (vpc gateway)
+sudo ip addr add 10.50.0.1/24 dev vph-e1
+
+# adding ip address to the vpc router interface connected to the host
+sudo ip netns exec routerNS ip addr add 10.50.0.2/24 dev vpt1-e2
+
+
+	
+# Iptable rule for traffic from vpc router to internet (SNAT)
+sudo iptables -t nat -I POSTROUTING 1 -s 10.50.0.0/24 ! -d 10.50.0.0/24 -o eth0 -j MASQUERADE
+
+# Default route for traffic going out of vpc router to host
+sudo ip netns exec routerNS ip route add default via 10.50.0.1 dev vpt1-e2
+
+# Iptable rule to SNAT traffic coming from subnet going to the internet
+sudo ip netns exec routerNS iptables -t nat -I POSTROUTING 1 -s 10.1.0.0/24 -o vpt1-e2 ! -d 10.1.0.0/24 -j MASQUERADE
+
+####
+# Iptable rule to SNAT traffic coming from subnet going to the internet
+sudo ip netns exec routerNS iptables -t nat -I POSTROUTING 1 -s 10.2.0.0/24 -o vpt1-e2 ! -d 10.2.0.0/24 -j MASQUERADE

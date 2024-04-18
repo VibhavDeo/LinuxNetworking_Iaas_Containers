@@ -1,0 +1,44 @@
+{
+    "mary": {
+        "name": "mary",
+        "customer_id": 2,
+        "details": [
+            {
+                "vpc_name": "VPC1",
+                "dns": false,
+                "vpc_id": 1
+            },
+            {
+                "vpc_name": "VPC2",
+                "dns": false,
+                "vpc_id": 2
+            }
+        ]
+    },
+    "john": {
+        "name": "john",
+        "customer_id": 1,
+        "details": [
+            {
+                "vpc_name": "VPC1",
+                "dns": false,
+                "vpc_id": 1
+            },
+            {
+                "vpc_name": "VPC2",
+                "dns": false,
+                "vpc_id": 2
+            },
+            {
+                "vpc_name": "VPC3",
+                "dns": false,
+                "vpc_id": 3
+            },
+            {
+                "vpc_name": "VPC4",
+                "dns": false,
+                "vpc_id": 4
+            }
+        ]
+    }
+}

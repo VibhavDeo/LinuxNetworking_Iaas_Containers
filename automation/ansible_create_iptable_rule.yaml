@@ -1,0 +1,19 @@
+---
+- name: Configure iptables to allow traffic between multiple pairs of interfaces in a namespace
+  hosts: localhost
+  become: true
+  vars_files:
+    - variables/create_ip_table_rule.yaml
+
+  tasks:
+    - name: Allow traffic between interface pairs
+      ansible.builtin.command:
+        cmd: "ip netns exec {{ namespace }} iptables -I FORWARD 1 -i {{ item.interface1 }} -o {{ item.interface2 }} -j ACCEPT"
+      loop: "{{ interface_pairs }}"
+      ignore_errors: yes
+
+    - name: Allow traffic between reverse interface pairs
+      ansible.builtin.command:
+        cmd: "ip netns exec {{ namespace }} iptables -I FORWARD 1 -i {{ item.interface2 }} -o {{ item.interface1 }} -j ACCEPT"
+      loop: "{{ interface_pairs }}"
+      ignore_errors: yes

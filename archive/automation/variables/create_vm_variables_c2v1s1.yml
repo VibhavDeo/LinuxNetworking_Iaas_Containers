@@ -1,0 +1,11 @@
+br_id: bc2v1s1
+network_id: nc2v1s1
+pub_namespace: public
+script_files_dir: /home/vmadm/project/subnet_files
+subnet_ip: 10.10.10.0/24
+template_dir: /home/vmadm/project/automation/jinja_templates
+veth_brv_br_inf: ve_c2v1s1_b
+veth_brv_v_inf: ve_c2v1s1_v
+veth_brv_v_inf_ip: 10.10.10.1/24
+veth_vpns_v_inf: ve_c2v1_v
+vpc_id: c2v1

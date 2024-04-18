@@ -1,0 +1,43 @@
+/Users/priyaandurkar/Documents/Spring 2024/Linux/Project/host_NB/try.yaml
+
+
+curl --connect-timeout 0 --max-time 0 -X POST -F "file=@/home/vmadm/project/client_input/userdetails_input.yaml" http://localhost:8000/uploadUserDetails/
+curl --connect-timeout 0 --max-time 0 -X POST -F "file=@/home/vmadm/project/client_input/vpcdetails_input.yaml" http://localhost:8000/uploadVPCDetails/
+curl --connect-timeout 0 --max-time 0 -X POST -F "file=@/home/vmadm/project/client_input/subnetdetails_input.yaml" http://localhost:8000/uploadSubnetDetails/
+curl --connect-timeout 0 --max-time 0 -X POST -F "file=@/home/vmadm/project/client_input/vmdetails_input.yaml" -F "python_content=@/home/vmadm/project/client_input/pythoncontent_input.py" http://localhost:8000/uploadVMDetails/
+
+curl --connect-timeout 0 --max-time 0 -X POST -F "file=@/home/vmadm/project/client_input/vmdetails_input.yaml" -F "python_content=@/home/vmadm/project/client_input/cdn_nb.py" http://localhost:8000/uploadVMDetails/
+
+
+curl --connect-timeout 0 --max-time 0 -X POST -F "file=@/home/vmadm/project/client_input/vmdetails_input.yaml" -F "python_content=@/home/vmadm/project/client_input/cdn_customer_server.py" -F "data_content=@/home/vmadm/project/client_input/optional.txt" http://localhost:8000/uploadVMDetails/
+
+
+
+curl http://localhost:8000/getUserDetails/john
+
+
+/home/vmadm/project/host_NB
+
+curl -X POST -F "file=@/home/vmadm/project/host_NB/try.yaml" http://localhost:8000/uploadUserDetails/
+
+
+curl -o create_user.yaml -X GET http://localhost:8000/downloadTemplate/create_user
+
+ curl -X POST   -H "Content-Type: application/json"   -d '{
+        "tenant_id": "6",
+        "tenant_name": "abc",
+        "vpc_id": "1",
+        "include_INDIA": "yes",
+        "include_AUS": "no",
+        "include_USA":"yes"
+      }'   http://30.30.30.2:8080/init_gathering
+
+curl -X POST   -H "Content-Type: application/json"   -d '{
+        "tenant_id": "10",
+        "tenant_name": "lnx.com",
+        "vpc_id": "1",
+        "include_india": "no",
+        "include_usa" : "yes",
+        "include_uk":"no"
+      }'   http://70.70.70.2:8080/init_gathering
+

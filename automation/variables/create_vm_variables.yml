@@ -1,0 +1,17 @@
+interface_name: enp1s0
+memory: 1024
+network_id: nc2v1s1
+pub_namespace: public
+public_router_incoming_port: '6017'
+public_router_ip: 1.1.1.2
+script_files_dir: /home/vmadm/project/subnet_files
+subnet_ip: 10.10.10.1
+template_dir: /home/vmadm/project/automation/jinja_templates
+veth_vpns_v_inf: 148.114.51.2
+vm_id: vm2c2v1s1
+vm_ip: 10.10.10.2/24
+vm_ip_nmsk: 10.10.10.2
+vm_port: 8080
+vpc_id: c2v1
+vpc_incoming_port: '6017'
+vpcu: 1

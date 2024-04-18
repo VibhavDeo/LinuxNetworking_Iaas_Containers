@@ -1,0 +1,53 @@
+vpc_details:
+  - name: mary
+    vpcs:
+      - vpc_id: c1v1
+        ep_in_pub: ve_c1v1_pns
+        ep_in_vpc: ve_c1v1_v
+        pub_ns_ip: 10.10.10.1
+        pub_vpc_ep_ip: 10.10.10.1/30
+        vpc_ep_ip: 10.10.10.2/3
+        vpc_subnet: 10.10.10.0/30
+        public_route_inf: ve_ns
+      - vpc_id: c1v1
+        ep_in_pub: ve_c1v1_pns
+        ep_in_vpc: ve_c1v1_v
+        pub_ns_ip: 10.10.10.1
+        pub_vpc_ep_ip: 10.10.10.1/30
+        vpc_ep_ip: 10.10.10.2/3
+        vpc_subnet: 10.10.10.0/30
+        public_route_inf: ve_ns
+  - name: john
+    vpcs:
+      - vpc_id: c1v1
+        ep_in_pub: ve_c1v1_pns
+        ep_in_vpc: ve_c1v1_v
+        pub_ns_ip: 10.10.10.1
+        pub_vpc_ep_ip: 10.10.10.1/30
+        vpc_ep_ip: 10.10.10.2/3
+        vpc_subnet: 10.10.10.0/30
+        public_route_inf: ve_ns
+      - vpc_id: c1v1
+        ep_in_pub: ve_c1v1_pns
+        ep_in_vpc: ve_c1v1_v
+        pub_ns_ip: 10.10.10.1
+        pub_vpc_ep_ip: 10.10.10.1/30
+        vpc_ep_ip: 10.10.10.2/3
+        vpc_subnet: 10.10.10.0/30
+        public_route_inf: ve_ns
+      - vpc_id: c1v1
+        ep_in_pub: ve_c1v1_pns
+        ep_in_vpc: ve_c1v1_v
+        pub_ns_ip: 10.10.10.1
+        pub_vpc_ep_ip: 10.10.10.1/30
+        vpc_ep_ip: 10.10.10.2/3
+        vpc_subnet: 10.10.10.0/30
+        public_route_inf: ve_ns
+      - vpc_id: c1v1
+        ep_in_pub: ve_c1v1_pns
+        ep_in_vpc: ve_c1v1_v
+        pub_ns_ip: 10.10.10.1
+        pub_vpc_ep_ip: 10.10.10.1/30
+        vpc_ep_ip: 10.10.10.2/3
+        vpc_subnet: 10.10.10.0/30
+        public_route_inf: ve_ns
