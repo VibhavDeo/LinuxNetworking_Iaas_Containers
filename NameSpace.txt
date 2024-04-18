@@ -42,7 +42,7 @@ sudo brctl addif net2 vph-br-e1
 
 ####
 # Adding veth to the bridge
-sudo brctl addif net3 vph-br2-e1
+sudo brctl addif net3 vph-br2-e1
 
 # adding ip address to the vpc router interface connected to the subnet bridge (subnet gateway)
 sudo ip netns exec routerNS ip addr add 10.1.0.1/24 dev vpt1-br-e2

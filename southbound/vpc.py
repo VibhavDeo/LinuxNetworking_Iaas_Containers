@@ -26,6 +26,7 @@ for client, client_data in data.items():
                         vpc_ip = vpc_details["vpc_ip"]
                         subnet_yaml_data = {
                             "pub_namespace": 'public',
+                            "router_image": "router",
                             "vpc_id": v_id,
                             "ep_in_pub": f've_{v_id}_pns',
                             "ep_in_vpc": f've_{v_id}_v',

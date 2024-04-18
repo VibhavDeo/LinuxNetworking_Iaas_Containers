@@ -15,12 +15,23 @@
   #   vpc_subnet: 11.11.11.0/30
   #   public_route_inf: ve_ns
           
-  tasks:
-    - name: Create Namespaces
-      become: yes
-      community.general.ip_netns:
+  # tasks:
+    - name: Deploy Container router
+      docker_container:
         name: "{{ vpc_id }}"
-        state: present
+        image: "{{ router_image }}"
+        state: started
+        hostname: "{{ vpc_id }}"
+
+    - name: Create container router namespace
+      command: sudo sh /home/vmadm/project/automation/create_ns.sh {{ vpc_id }}
+      become: yes
+      
+  #   - name: Create Namespaces
+  #     become: yes
+  #     community.general.ip_netns:
+  #       name: "{{ vpc_id }}"
+  #       state: present
 
     - name: Creat veth pairs
       become: yes
