@@ -1,6 +1,6 @@
 ---
 - name: Configure iptables to allow traffic between multiple pairs of interfaces in a namespace
-  hosts: localhost
+  hosts: my_hosts
   become: true
   vars_files:
     - variables/create_ip_table_rule.yaml

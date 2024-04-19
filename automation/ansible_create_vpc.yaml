@@ -1,37 +1,22 @@
 ---
 - name: Create a Customer Router Namespace
-  hosts: localhost
+  hosts: my_hosts
   gather_facts: no
   vars_files:
     - variables/create_vpc_variables.yml
-  # vars:
-  #   pub_namespace: public
-  #   vpc_id: c2v2
-  #   ep_in_pub: ve_c2v2_pns
-  #   ep_in_vpc: ve_c2v2_v
-  #   pub_ns_ip: 11.11.11.1
-  #   pub_vpc_ep_ip: 11.11.11.1/30
-  #   vpc_ep_ip: 11.11.11.2/30
-  #   vpc_subnet: 11.11.11.0/30
-  #   public_route_inf: ve_ns
           
-  # tasks:
+  tasks:
     - name: Deploy Container router
       docker_container:
         name: "{{ vpc_id }}"
         image: "{{ router_image }}"
         state: started
         hostname: "{{ vpc_id }}"
+      become: yes
 
     - name: Create container router namespace
       command: sudo sh /home/vmadm/project/automation/create_ns.sh {{ vpc_id }}
       become: yes
-      
-  #   - name: Create Namespaces
-  #     become: yes
-  #     community.general.ip_netns:
-  #       name: "{{ vpc_id }}"
-  #       state: present
 
     - name: Creat veth pairs
       become: yes

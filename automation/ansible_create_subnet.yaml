@@ -8,7 +8,7 @@
 #pns = public namespace
 ---
 - name: Provision a new subnet in a VPC
-  hosts: localhost
+  hosts: my_hosts
   gather_facts: no
   vars_files:
     - variables/create_subnet_variables.yml

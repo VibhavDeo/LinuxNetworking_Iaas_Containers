@@ -1,6 +1,12 @@
+### FIX source.py error
+### FOR MAPPING WHICH HOST SERVER, give different ports to edge server on different hosts
+### add different mapping in dns server (change in dns server code)
+### route to other host after dnat in the vmadm10 host
+### ansible when: inventory_hostname == 'host2' to write tasks specific to hosts (for port number handling)
+
 ---
 - name: Provision a new VM in a subnet
-  hosts: localhost
+  hosts: my_hosts
   gather_facts: no
   vars_files:
     - variables/create_vm_variables.yml
@@ -28,6 +34,7 @@
       ansible.builtin.file:
         path: "{{ script_files_dir }}/{{ vm_id }}"
         state: directory
+      become: yes
 
     - name: Create directory for VM
       become: yes
@@ -53,26 +60,30 @@
     - name: Read python file and add 5 indents
       ansible.builtin.shell:
         cmd: |
-          sed -i 's/^/     /' source.py
+          sed -i 's/^/     /' /home/vmadm/project/automation/source.py
       args:
         executable: /bin/bash
+      become: yes
     
     - name: Read data file and add 5 indents
       ansible.builtin.shell:
         cmd: |
-          sed -i 's/^/     /' optional.txt
+          sed -i 's/^/     /' /home/vmadm/project/automation/optional.txt
       args:
         executable: /bin/bash
+      become: yes
 
     - name: Read input from cat command
-      shell: cat source.py
+      shell: cat /home/vmadm/project/automation/source.py
       register: python_file_content
       changed_when: false
+      become: yes
 
     - name: Read text file input from cat command
-      shell: cat optional.txt
+      shell: cat /home/vmadm/project/automation/optional.txt
       register: data_file_content
       changed_when: false
+      become: yes
 
     - name: Create Jinja2 file
       template:
@@ -81,6 +92,7 @@
       vars:
         content: "{{ python_file_content.stdout }}"
         optional_content: "{{ data_file_content.stdout }}"
+      become: yes
 
     - name: Run genisoimage command
       command: genisoimage -output "/var/lib/libvirt/images/{{ vm_id }}/{{ vm_id }}-cidata.iso" -volid cidata -joliet -rock meta-data user-data
@@ -92,17 +104,20 @@
       template:
         src: "{{ template_dir }}/vm_definition.j2"
         dest: "{{ script_files_dir }}/{{ vm_id }}/{{ vm_id }}.xml"
+      become: yes
         
     - name: Define a VM
       community.libvirt.virt:
         command: define
         xml: "{{ lookup('file', script_files_dir + '/' + vm_id + '/' + vm_id + '.xml') }}"
         autostart: true
+      become: yes
 
     - name: Start vm
       community.libvirt.virt:
         name: "{{ vm_id }}"
         state: running
+      become: yes
 
 
     # - name: create and start a VM

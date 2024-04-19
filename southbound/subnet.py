@@ -65,7 +65,7 @@ with open(yaml_archive_file_path, 'w') as yaml_file:
 
 def run_ansible_playbook(playbook_path):
     try:
-        subprocess.run(["sudo", "ansible-playbook", playbook_path], check=True)
+        subprocess.run(["sudo", "ansible-playbook", "-i", "/home/vmadm/project/automation/inventory.ini", playbook_path], check=True)
         print("Ansible playbook executed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error executing Ansible playbook: {e}")
