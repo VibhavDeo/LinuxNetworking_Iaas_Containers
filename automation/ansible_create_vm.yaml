@@ -118,18 +118,10 @@
         name: "{{ vm_id }}"
         state: running
       become: yes
-
-
-    # - name: create and start a VM
-    #   command: virsh create  "{{ script_files_dir }}/{{ vm_id }}/{{ vm_id }}.xml"
    
     - name: Add a DNAT rule for the created VMs
       become: yes
       command: "sudo ip netns exec {{ vpc_id }} iptables -t nat -A PREROUTING -p tcp -d {{ veth_vpns_v_inf }} --dport {{ vpc_incoming_port }} -j DNAT --to-destination {{ vm_ip_nmsk }}:{{ vm_port }}"
-
-    - name: Add a DNAT rule for public to private router 
-      become: yes
-      command: "sudo ip netns exec {{ pub_namespace }} iptables -t nat -A PREROUTING -p tcp -d {{ public_router_ip }} --dport {{ public_router_incoming_port }} -j DNAT --to-destination {{ veth_vpns_v_inf }}:{{ vpc_incoming_port }}"
 
     - name: Add a DNAT rule for public to private router 
       become: yes

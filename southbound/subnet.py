@@ -31,6 +31,7 @@ for client, client_data in data.items():
                     if str(subnet_id) == str(input_subnet_id):
                         subnet_ip = subnet_info["subnet_ip"]
                         subnet_mask = str(subnet_info["subnet_mask"])
+                        port = subnet_info["incoming_dnat_routing_port"]
                         v_id = f'c{customer_id}v{vpc_id}'
                         sn_id = f'{v_id}s{subnet_id}'
                         br_id = f'b{sn_id}'
@@ -45,6 +46,7 @@ for client, client_data in data.items():
                             "pub_namespace": 'public',
                             "vpc_id": v_id,
                             "br_id": br_id,
+                            "dnat_port": port,
                             "veth_brv_br_inf": veth_brv_br_inf,
                             "veth_brv_v_inf": veth_brv_v_inf,
                             "veth_vpns_v_inf": veth_vpns_v_inf,

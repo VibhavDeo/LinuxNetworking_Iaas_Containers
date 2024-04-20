@@ -47,4 +47,4 @@ vpcs:
         vm_details:
           - memory: 1024
             vcpu: 1
-            vm_name: cdn_test_vd_vm
+            vm_name: cdn_test_vd_vm_2
