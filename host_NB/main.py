@@ -4,6 +4,7 @@ from fastapi.responses import PlainTextResponse
 import yaml
 import json
 import os
+import paramiko
 import random
 import subprocess
 from flask import Flask, request, jsonify
@@ -450,11 +451,30 @@ def add_vm_ids(yaml_data_vpc_data,vpc,subnet,existing_data=None):
 
     return yaml_data_vpc_data, vm_ids
 
+def scp_tx(local_path, remote_path, hostname, port, username, password):
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname, port, username, password)
+        sftp = ssh.open_sftp()
+        sftp.put(local_path, remote_path)
+        sftp.close()
+        ssh.close()
+    except Exception as e:
+        print("Error:", e)
+
 def upload_file(filename, file: UploadFile = File(...)):
     try:
         file_path = os.path.join("../automation", filename)
         with open(file_path, "wb") as buffer:
             buffer.write(file.file.read())
+        local_path = file_path
+        remote_path = file_path
+        hostname = "192.168.38.11"
+        port = 22
+        username = "vmadm"
+        password = "vprcncsu"
+        scp_tx(local_path, remote_path, hostname, port, username, password)
         return "success"
     except Exception as e:
         return "error"
@@ -751,6 +771,12 @@ async def fetch_logs(customer_name: str, user_name: str):
         raise HTTPException(status_code=404, detail="Logs not found for provided inputs")
     return logs
 
+
+@app.route('/get_dns_data')
+def send_file_data(request: Request):
+    with open("../database/dns_db.json", "r") as file:
+        existing_data_dns = json.load(file)
+    return JSONResponse(content=existing_data_dns)
 
 if __name__ == "__main__":
     import uvicorn

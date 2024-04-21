@@ -2,7 +2,7 @@ import requests
 from requests.exceptions import Timeout
 
 def get_ip_port(website, location,preferred_server):
-    url = f"http://192.168.38.10:8080?website={website}&location={location}&preferred_server={preferred_server}"
+    url = f"http://1.1.1.2:1409?website={website}&location={location}&preferred_server={preferred_server}"
     response = requests.get(url)
     data = response.json()
     website_data = data.get(website)

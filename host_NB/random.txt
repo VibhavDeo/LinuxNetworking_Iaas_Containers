@@ -41,3 +41,5 @@ curl -X POST   -H "Content-Type: application/json"   -d '{
         "include_uk":"no"
       }'   http://70.70.70.2:8080/init_gathering
 
+
+

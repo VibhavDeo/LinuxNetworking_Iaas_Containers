@@ -3,14 +3,32 @@ import json, random, requests
 
 app = Flask(__name__)
 
+def download_file(url, filename):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            with open(filename, 'w') as file:
+                print(response)
+                print(response.content)
+                
+                print(response.json())
+                json.dump(response.json(), file, indent=4)
+            print("File downloaded successfully as", filename)
+        else:
+            print("Failed to download file. Status code:", response.status_code)
+    except Exception as e:
+        print("An error occurred:", str(e))
 
 # Route to handle client requests
 @app.route("/", methods=["GET"])
 def handle_request():
-    with open('../database/countrymapping.json', 'r') as file:
+    url = "http://192.168.38.10:8000/get_dns_data"
+    download_file(url, "dns_db.json")
+
+    with open('countrymapping.json', 'r') as file:
         proximity = json.load(file)
 
-    with open("../database/dns_db.json", "r") as file:
+    with open("dns_db.json", "r") as file:
         database = json.load(file)
 
     website = request.args.get("website")

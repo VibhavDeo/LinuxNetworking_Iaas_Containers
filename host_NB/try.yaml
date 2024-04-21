@@ -1,50 +1,37 @@
-customer_name: cdn_test_vd
+#USER
+customer_name: DNS
+customer_pwd: DNS
+customer_addr: DNS@DNS.com
+
+#VPC
+customer_name: DNS
+customer_id: 2
+vpcs:
+  - vpc_name: DNS_vpc
+
+#SUBNET
+customer_name: DNS
 customer_id: 1
 vpcs:
-  - vpc_name: india
+  - vpc_name: DNS_vpc
     subnet_details:
-      - subnet_name:  cdn_test_vd_india1
-        subnet_ip: 10.10.10.0  
-        subnet_mask: 24
-      - subnet_name:  vd_test_india2
-        subnet_ip: 10.10.11.0  
-        subnet_mask: 24
-  - vpc_name: usa
-    subnet_details:
-      - subnet_name:  cdn_test_vd_usa
-        subnet_ip: 11.11.11.0
+      - subnet_name:  DNS_subnet
+        subnet_ip: 88.88.88.0
         subnet_mask: 24
 
-vmadm@lnVM10:~/project/client_input$ cat userdetails_input.yaml
-customer_name: cdn_test_vd
-customer_pwd: sjdkjahdakd
-customer_addr: demo@gmail.com
-vmadm@lnVM10:~/project/client_input$ cat vpcdetails_input.yaml
-customer_name: cdn_test_vd
+#VM
+customer_name: DNS
 customer_id: 1
 vpcs:
-  - vpc_name: cdn_test_vd_vpc
-  - vpc_name: india
-vmadm@lnVM10:~/project/client_input$ cat subnetdetails_input.yaml
-customer_name: cdn_test_vd
-customer_id: 1
-vpcs:
-  - vpc_name: cdn_test_vd_vpc
+  - vpc_name: DNS_vpc
     subnet_details:
-      - subnet_name:  cdn_test_vd_subnet
-        subnet_ip: 10.10.10.0
-        subnet_mask: 24
-
-vmadm@lnVM10:~/project/client_input$ cat vmdetails_input.yaml
-customer_name: cdn_test_vd
-customer_id: 1
-vpcs:
-  - vpc_name: cdn_test_vd_vpc
-    subnet_details:
-      - subnet_name:  cdn_test_vd_subnet
-        subnet_ip: 10.10.10.0
+      - subnet_name:  DNS_subnet
+        subnet_ip: 88.88.88.0
         subnet_mask: 24
         vm_details:
           - memory: 1024
             vcpu: 1
-            vm_name: cdn_test_vd_vm_2
+            vm_name: DNS1
+          - memory: 1024
+            vcpu: 1
+            vm_name: DNS2
