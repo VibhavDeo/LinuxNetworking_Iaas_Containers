@@ -1,10 +1,12 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from pydantic import BaseModel
+from fastapi.responses import PlainTextResponse
 import yaml
 import json
 import os
 import random
 import subprocess
+from flask import Flask, request, jsonify
 from fastapi.responses import JSONResponse
 from datetime import datetime
 import copy 
@@ -534,7 +536,222 @@ async def upload_namespace_details(file: UploadFile):
     else:
         return JSONResponse(content={"error": "Uploaded file must be in YAML format."}, status_code=400)
 
+####################-------------------------------------------Rollbacks-----------------------------------------------------############################
+
+@app.post('/delete_vpc')
+async def delete_vpc(customer_id: int, vpc_id: int):
+    # Load database.json and find the VPC to delete
+    with open('../database/database.json', 'r') as file:
+        database = json.load(file)
+
+    vpc_to_delete = None
+    for customer, details in database.items():
+        if details['customer_id'] == customer_id:
+            for vpc_name, vpc_details in details['vpcs'].items():
+                if vpc_details['vpc_id'] == vpc_id:
+                    vpc_to_delete = vpc_details
+                    break
+            break
+
+    if vpc_to_delete is None:
+        return JSONResponse(status_code=404, content={'message': 'VPC not found for given customer ID and VPC ID'})
+
+    # Delete VMs
+    if 'subnet_details' in vpc_to_delete: 
+        for subnet_name, subnet_details in vpc_to_delete['subnet_details'].items():
+            if subnet_details['_Status_']!="Deleted":
+                if 'vm_details' in subnet_details:
+                    for vm_name, vm_details in subnet_details['vm_details'].items():
+                        if vm_details['_Status_']!="Deleted":
+                            subprocess.run(['python3', '../southbound/vm_deleted.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id']), str(vm_details['vm_id'])])
+                            vm_details['_Status_'] = 'Deleted'
+                            vm_details['_Timestamp_'] = datetime.now().isoformat()
+
+    # Delete Subnets
+    if 'subnet_details' in vpc_to_delete:
+        for subnet_name, subnet_details in vpc_to_delete['subnet_details'].items():
+            if subnet_details['_Status_']!="Deleted":
+                subprocess.run(['python3', '../southbound/subnet_deleted.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id'])])
+                subnet_details['_Status_'] = 'Deleted'
+                subnet_details['_Timestamp_'] = datetime.now().isoformat()
+
+    # Delete VPC
+    subprocess.run(['python3', '../southbound/vpc_deleted.py', str(customer_id), str(vpc_id)])
+    vpc_to_delete['_Status_'] = 'Deleted'
+    vpc_to_delete['_Timestamp_'] = datetime.now().isoformat()
+
+    # Save changes back to database.json
+    with open('../database/database.json', 'w') as file:
+        json.dump(database, file, indent=4)
+
+    return JSONResponse(status_code=200, content={'message': 'VPC deleted successfully'})
+
+
+@app.post('/delete_subnet')
+async def delete_vpc(customer_id: int, vpc_id: int, subnet_id: int):
+    # Load database.json and find the VPC to delete
+    with open('../database/database.json', 'r') as file:
+        database = json.load(file)
+
+    vpc_to_delete = None
+    for customer, details in database.items():
+        if details['customer_id'] == customer_id:
+            for vpc_name, vpc_details in details['vpcs'].items():
+                if vpc_details['vpc_id'] == vpc_id:
+                    vpc_to_delete = vpc_details
+                    break
+            break
+
+    if vpc_to_delete is None:
+        return JSONResponse(status_code=404, content={'message': 'VPC not found for given customer ID and VPC ID'})
+
+    # Delete VMs
+    if 'subnet_details' in vpc_to_delete:
+        for subnet_name, subnet_details in vpc_to_delete['subnet_details'].items():
+            if subnet_details['subnet_id']== subnet_id and subnet_details['_Status_']!="Deleted":
+                if 'vm_details' in subnet_details:
+                    for vm_name, vm_details in subnet_details['vm_details'].items():
+                        if vm_details['_Status_']!="Deleted":
+                            subprocess.run(['python3', '../southbound/vm_deleted.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id']), str(vm_details['vm_id'])])
+                            vm_details['_Status_'] = 'Deleted'
+                            vm_details['_Timestamp_'] = datetime.now().isoformat()
+
+    # Delete Subnets
+    if 'subnet_details' in vpc_to_delete:
+        for subnet_name, subnet_details in vpc_to_delete['subnet_details'].items():
+            if subnet_details['subnet_id']== subnet_id and subnet_details['_Status_']!="Deleted":
+                subprocess.run(['python3', '../southbound/subnet_deleted.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id'])])
+                subnet_details['_Status_'] = 'Deleted'
+                subnet_details['_Timestamp_'] = datetime.now().isoformat()
+
+    # # Delete VPC
+    # #subprocess.run(['python3', '../southbound/vpc.py', str(customer_id), str(vpc_id)])
+    # vpc_to_delete['_Status_'] = 'Deleted'
+    # vpc_to_delete['_Timestamp_'] = datetime.now().isoformat()
+
+    # Save changes back to database.json
+    with open('../database/database.json', 'w') as file:
+        json.dump(database, file, indent=4)
+
+    return JSONResponse(status_code=200, content={'message': 'Subnet deleted successfully'})
+
+
+@app.post('/delete_vm')
+async def delete_vpc(customer_id: int, vpc_id: int, subnet_id: int, vm_id: int):
+    # Load database.json and find the VPC to delete
+    with open('../database/database.json', 'r') as file:
+        database = json.load(file)
+
+    vpc_to_delete = None
+    for customer, details in database.items():
+        if details['customer_id'] == customer_id:
+            for vpc_name, vpc_details in details['vpcs'].items():
+                if vpc_details['vpc_id'] == vpc_id:
+                    vpc_to_delete = vpc_details
+                    break
+            break
+
+    if vpc_to_delete is None:
+        return JSONResponse(status_code=404, content={'message': 'VPC not found for given customer ID and VPC ID'})
+
+    # Delete VMs
+    if 'subnet_details' in vpc_to_delete:
+        for subnet_name, subnet_details in vpc_to_delete['subnet_details'].items():
+            if subnet_details['subnet_id']== subnet_id and subnet_details['_Status_']!="Deleted":
+                if 'vm_details' in subnet_details:
+                    for vm_name, vm_details in subnet_details['vm_details'].items():
+                        if vm_details['vm_id']== vm_id and vm_details['_Status_']!="Deleted":
+                            subprocess.run(['python3', '../southbound/vm_deleted.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id']), str(vm_details['vm_id'])])
+                            vm_details['_Status_'] = 'Deleted'
+                            vm_details['_Timestamp_'] = datetime.now().isoformat()
+
+
+    # Delete Subnets
+    # for subnet_name, subnet_details in vpc_to_delete['subnet_details'].items():
+    #     #subprocess.run(['python3', '../southbound/subnet.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id'])])
+    #     subnet_details['_Status_'] = 'Deleted'
+    #     subnet_details['_Timestamp_'] = datetime.now().isoformat()
+
+    # # Delete VPC
+    # #subprocess.run(['python3', '../southbound/vpc.py', str(customer_id), str(vpc_id)])
+    # vpc_to_delete['_Status_'] = 'Deleted'
+    # vpc_to_delete['_Timestamp_'] = datetime.now().isoformat()
+
+    # Save changes back to database.json
+    with open('../database/database.json', 'w') as file:
+        json.dump(database, file, indent=4)
+
+    return JSONResponse(status_code=200, content={'message': 'VM deleted successfully'})
+
+
+
+################################################ Logs functionality #######################################################################
     
+
+@app.post("/logs/{username}")
+async def get_logs(username: str):
+    file_path = 'database/database.json'
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        return PlainTextResponse("Database file not found", status_code=404)
+
+    logs = []
+
+    if username in data:
+        user_data = data[username]
+        logs.append(f"Customer '{user_data['customer_name']}' (ID: {user_data['customer_id']}) created at {user_data['_Timestamp_']} - Status: {user_data['_Status_']}")
+        for vpc_name, vpc_data in user_data.get('vpcs', {}).items():
+            logs.append(f"  - VPC '{vpc_name}' (ID: {vpc_data['vpc_id']}) created at {vpc_data['_Timestamp_']} - Status: {vpc_data['_Status_']}")
+            for subnet_name, subnet_data in vpc_data.get('subnet_details', {}).items():
+                logs.append(f"    - Subnet '{subnet_name}' (ID: {subnet_data['subnet_id']}) created at {subnet_data['_Timestamp_']} - Status: {subnet_data['_Status_']}")
+                for vm_name, vm_data in subnet_data.get('vm_details', {}).items():
+                    logs.append(f"      - VM '{vm_name}' (ID: {vm_data['vm_id']}) created at {vm_data['_Timestamp_']} - Status: {vm_data['_Status_']}")
+
+        # Convert list of logs to a single string with new lines
+        response_text = "\n".join(logs)
+        return PlainTextResponse(response_text, media_type="text/plain")
+    else:
+        return PlainTextResponse(f"User '{username}' not found", status_code=404)
+
+###################################################################Logs for CDN############################################################3
+def get_logs(customer_name: str, user_name: str) -> Optional[str]:
+    file_path = '../database/database.json'
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        return PlainTextResponse("Database file not found", status_code=404)
+    logs = ""
+    print(customer_name)
+    print(user_name)
+    if customer_name in data:
+        vpcs = data[customer_name].get('vpcs', {})
+        for country, vpc_details in vpcs.items():
+            subnet_details = vpc_details.get('subnet_details', {})
+            for subnet_name, subnet_info in subnet_details.items():
+                if user_name in subnet_name:
+                    vm_details = subnet_info.get('vm_details', {})
+                    for vm_name, vm_info in vm_details.items():
+                
+                        vm_id = vm_info.get('vm_id', 'VM not created yet')
+                        vm_name = vm_info.get('vm_name', 'VM name not available')
+                        vm_creation_timestamp = vm_info.get('_Timestamp_', 'VM creation timestamp not available')
+                        logs += f"{vm_creation_timestamp} -> Edge server VM {vm_name} (ID: {vm_id}) created for {user_name} in {country}\n"
+    return logs
+
+
+
+@app.get("/get_logs/", response_class=PlainTextResponse)
+async def fetch_logs(customer_name: str, user_name: str):
+    logs = get_logs(customer_name, user_name)
+    if not logs:
+        raise HTTPException(status_code=404, detail="Logs not found for provided inputs")
+    return logs
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
