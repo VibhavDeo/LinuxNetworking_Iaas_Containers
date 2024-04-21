@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import json, random, requests
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -36,6 +37,32 @@ def handle_request():
     preferred_server = int(request.args.get("preferred_server"))
 
     server_location = proximity[user_location][preferred_server]
+
+
+     # Log request information with timestamp
+    log = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "website": website,
+        "user_location": user_location,
+        "preferred_server": preferred_server,
+        "server_location": server_location
+    }
+
+    # Load existing logs from request_logs.json
+    try:
+        with open("request_logs.json", "r") as log_file:
+            logs = json.load(log_file)
+    except FileNotFoundError:
+        logs = []
+
+    # Add current log to the list of logs
+    logs.append(log)
+
+    # Store the logs in request_logs.json
+    with open("request_logs.json", "w") as log_file:
+        json.dump(logs, log_file, indent=4)
+
+
     if website in database:
         dst_list = []
         for loc in database[website]:
