@@ -761,7 +761,19 @@ def get_logs(customer_name: str, user_name: str) -> Optional[str]:
                         vm_name = vm_info.get('vm_name', 'VM name not available')
                         vm_creation_timestamp = vm_info.get('_Timestamp_', 'VM creation timestamp not available')
                         logs += f"{vm_creation_timestamp} -> Edge server VM {vm_name} (ID: {vm_id}) created for {user_name} in {country}\n"
+    # Read request logs from request_logs.json and add relevant logs
+    REQUEST_LOGS_PATH = "../dns/request_logs.json"
+    with open(REQUEST_LOGS_PATH, "r") as f:
+        request_logs = json.load(f)
+        for request in request_logs:
+            if user_name in  request["website"] :
+                timestamp = request["timestamp"]
+                user_location = request["user_location"]
+                server_location = request["server_location"]
+                logs += f"{timestamp} -> Request from {user_location} to {user_name} served by server in {server_location}\n"
     return logs
+
+
 
 
 
