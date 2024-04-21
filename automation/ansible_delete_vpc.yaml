@@ -1,0 +1,52 @@
+---
+- name: Delete Customer Router Namespace
+  hosts: my_hosts
+  gather_facts: no
+  vars_files:
+    - variables/delete_vpc_variables.yml
+          
+  tasks:
+    - name: Remove ACCEPT rule from internet interface to VPC interface
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} iptables -D FORWARD -o {{ public_route_inf }} -i {{ ep_in_pub }} -j ACCEPT"
+        
+    - name: Remove ACCEPT rule from VPC interface to Internet interface
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} iptables -D FORWARD -i {{ public_route_inf }} -o {{ ep_in_pub }} -j ACCEPT"
+    
+    - name: Remove traffic isolation rule (DROP)
+      become: yes
+      command: "sudo ip netns exec {{ vpc_id }} iptables -D FORWARD -j DROP"
+    
+    - name: Remove SNAT rule for public
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} iptables -t nat -D POSTROUTING -s {{ vpc_subnet }} -o {{ public_route_inf }} ! -d {{ vpc_subnet }} -j MASQUERADE"
+           
+    - name: Remove default route from NS
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip route del default via {{ pub_ns_ip }} dev {{ep_in_vpc}}"
+    
+    - name: Remove IP address from veth endpoint interface- namespace
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip addr del {{ vpc_ep_ip }} dev {{ep_in_vpc}}"
+    
+    - name: Remove IP address from veth endpoint interface- pub_ns
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} ip addr del {{ pub_vpc_ep_ip }} dev {{ep_in_pub}} "
+    
+    - name: Ensure that public_NS interface is down
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} ip link set {{ep_in_pub}} down"
+    
+    - name: Ensure that NS interface is down
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip link set {{ep_in_vpc}} down"
+
+    - name: Delete the ns interface endpoint
+      ansible.builtin.command: "sudo ip netns exec {{ pub_namespace }} ip link delete {{ ep_in_pub }}"
+
+    # - name: Delete the ns interface 
+    #   ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip link delete {{ep_in_vpc}}"
+
+    - name: Remove container router namespace
+      command: sudo ip netns delete {{ vpc_id }}
+      become: yes
+
+    - name: Stop and remove Container router
+      docker_container:
+        name: "{{ vpc_id }}"
+        state: stopped
+        force_kill: yes
+      become: yes

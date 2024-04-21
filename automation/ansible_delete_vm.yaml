@@ -1,0 +1,45 @@
+---
+- name: Delete resources created by Provisioning playbook
+  hosts: my_hosts
+  gather_facts: no
+  vars_files:
+    - variables/delete_vm_variables.yml
+
+  tasks:
+    - name: Stop VM
+      community.libvirt.virt:
+        name: "{{ vm_id }}"
+        state: destroyed
+      become: yes
+
+    - name: Undefine VM using virsh command
+      command: virsh undefine "{{ vm_id }}"
+      become: yes
+
+    - name: Delete VM directory
+      file:
+        path: "/var/lib/libvirt/images/{{ vm_id }}"
+        state: absent
+      become: yes
+
+    - name: Create the directory
+      file:
+        path: "{{ script_files_dir }}/{{ vm_id }}"
+        state: absent
+      become: yes
+
+    - name: Delete genisoimage file
+      file:
+        path: "/var/lib/libvirt/images/{{ vm_id }}/{{ vm_id }}-cidata.iso"
+        state: absent
+      become: yes
+
+    - name: Remove DNAT rule for the created VMs
+      command: "sudo ip netns exec {{ vpc_id }} iptables -t nat -D PREROUTING -p tcp -d {{ veth_vpns_v_inf }} --dport {{ vpc_incoming_port }} -j DNAT --to-destination {{ vm_ip_nmsk }}:{{ vm_port }}"
+      ignore_errors: yes
+      become: yes
+
+    - name: Remove DNAT rule for public to private router
+      command: "sudo ip netns exec {{ pub_namespace }} iptables -t nat -D PREROUTING -p tcp -d {{ public_router_ip }} --dport {{ public_router_incoming_port }} -j DNAT --to-destination {{ veth_vpns_v_inf }}:{{ vpc_incoming_port }}"
+      ignore_errors: yes
+      become: yes
