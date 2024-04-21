@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from pydantic import BaseModel
+from fastapi.responses import PlainTextResponse
 import yaml
 import json
 import os
@@ -684,8 +685,36 @@ async def delete_vpc(customer_id: int, vpc_id: int, subnet_id: int, vm_id: int):
 
 
 
+################################################ Logs functionality #######################################################################
+    
 
+@app.post("/logs/{username}")
+async def get_logs(username: str):
+    file_path = 'database/database.json'
 
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        return PlainTextResponse("Database file not found", status_code=404)
+
+    logs = []
+
+    if username in data:
+        user_data = data[username]
+        logs.append(f"Customer '{user_data['customer_name']}' (ID: {user_data['customer_id']}) created at {user_data['_Timestamp_']} - Status: {user_data['_Status_']}")
+        for vpc_name, vpc_data in user_data.get('vpcs', {}).items():
+            logs.append(f"  - VPC '{vpc_name}' (ID: {vpc_data['vpc_id']}) created at {vpc_data['_Timestamp_']} - Status: {vpc_data['_Status_']}")
+            for subnet_name, subnet_data in vpc_data.get('subnet_details', {}).items():
+                logs.append(f"    - Subnet '{subnet_name}' (ID: {subnet_data['subnet_id']}) created at {subnet_data['_Timestamp_']} - Status: {subnet_data['_Status_']}")
+                for vm_name, vm_data in subnet_data.get('vm_details', {}).items():
+                    logs.append(f"      - VM '{vm_name}' (ID: {vm_data['vm_id']}) created at {vm_data['_Timestamp_']} - Status: {vm_data['_Status_']}")
+
+        # Convert list of logs to a single string with new lines
+        response_text = "\n".join(logs)
+        return PlainTextResponse(response_text, media_type="text/plain")
+    else:
+        return PlainTextResponse(f"User '{username}' not found", status_code=404)
 
 
 
