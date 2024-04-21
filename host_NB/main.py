@@ -11,6 +11,7 @@ from flask import Flask, request, jsonify
 from fastapi.responses import JSONResponse
 from datetime import datetime
 import copy 
+from typing import Optional
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, File, UploadFile
