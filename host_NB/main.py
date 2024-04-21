@@ -716,6 +716,40 @@ async def get_logs(username: str):
     else:
         return PlainTextResponse(f"User '{username}' not found", status_code=404)
 
+###################################################################Logs for CDN############################################################3
+def get_logs(customer_name: str, user_name: str) -> Optional[str]:
+    file_path = '../database/database.json'
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        return PlainTextResponse("Database file not found", status_code=404)
+    logs = ""
+    print(customer_name)
+    print(user_name)
+    if customer_name in data:
+        vpcs = data[customer_name].get('vpcs', {})
+        for country, vpc_details in vpcs.items():
+            subnet_details = vpc_details.get('subnet_details', {})
+            for subnet_name, subnet_info in subnet_details.items():
+                if user_name in subnet_name:
+                    vm_details = subnet_info.get('vm_details', {})
+                    for vm_name, vm_info in vm_details.items():
+                
+                        vm_id = vm_info.get('vm_id', 'VM not created yet')
+                        vm_name = vm_info.get('vm_name', 'VM name not available')
+                        vm_creation_timestamp = vm_info.get('_Timestamp_', 'VM creation timestamp not available')
+                        logs += f"{vm_creation_timestamp} -> Edge server VM {vm_name} (ID: {vm_id}) created for {user_name} in {country}\n"
+    return logs
+
+
+
+@app.get("/get_logs/", response_class=PlainTextResponse)
+async def fetch_logs(customer_name: str, user_name: str):
+    logs = get_logs(customer_name, user_name)
+    if not logs:
+        raise HTTPException(status_code=404, detail="Logs not found for provided inputs")
+    return logs
 
 
 if __name__ == "__main__":

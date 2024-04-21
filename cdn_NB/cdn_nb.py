@@ -182,5 +182,32 @@ def get_data():
         data = json.load(json_file)
     return jsonify(data)
 
+
+##################################################### To Fetch logs for a user ###################################3
+@app.route('/get_logs_from_another_server/', methods=['GET'])
+def get_logs_from_another_server():
+    # Get the user_name from the query parameters
+    user_name = request.args.get('user_name')
+    # Static customer name
+    customer_name = "cdn3"
+    # Endpoint for the get_logs API
+    # endpoint = "/get_logs/"
+    # Construct the full URL
+    url = "http://localhost:8000/get_logs/"
+    # Query parameters
+    params = {"customer_name": customer_name, "user_name": user_name}
+    try:
+        # Make GET request to the FastAPI server
+        response = requests.get(url, params=params)
+        # Raise an exception if response status code is not 200
+        response.raise_for_status()
+        # Return the response content
+        return response.text
+    except requests.exceptions.RequestException as e:
+        # Return error message if request fails
+        return f"Error: {e}"
+
+
+
 if __name__ == '__main__':
     app.run(host='70.70.70.2', port=8080)
