@@ -38,22 +38,22 @@
       ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip link delete {{ veth_brv_v_inf }}"
 
     #----------------------------------- Network Cleanup ---------------------------------------------
-    - name: Stop the network
-      community.libvirt.virt_net:
-        command: stop
-        name: "{{ network_id }}"
-      become: yes
+    # - name: Stop the network
+    #   community.libvirt.virt_net:
+    #     command: stop
+    #     name: "{{ network_id }}"
+    #   become: yes
 
-    - name: Undefine network
-      community.libvirt.virt_net:
-        command: undefine
-        name: "{{ network_id }}"
-      become: yes
+    # - name: Undefine network
+    #   community.libvirt.virt_net:
+    #     command: undefine
+    #     name: "{{ network_id }}"
+    #   become: yes
 
-    - name: Delete network XML files
-      ansible.builtin.file:
-        path: "{{ script_files_dir }}/{{ network_id }}"
-        state: absent
+    # - name: Delete network XML files
+    #   ansible.builtin.file:
+    #     path: "{{ script_files_dir }}/{{ network_id }}"
+    #     state: absent
 
     #----------------------------------- Bridge Cleanup ----------------------------------------------
     - name: Ensure Bridge is down
