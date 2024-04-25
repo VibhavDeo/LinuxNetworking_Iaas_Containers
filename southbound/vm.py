@@ -87,5 +87,5 @@ def run_ansible_playbook(playbook_path):
         print(f"Error executing Ansible playbook: {e}")
         return False
 
-playbook_path = '../automation/ansible_create_vm.yaml'
+playbook_path = '../automation/ansible_create_container_vm.yaml'
 run_ansible_playbook(playbook_path)
