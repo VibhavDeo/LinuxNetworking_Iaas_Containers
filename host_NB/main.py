@@ -584,7 +584,7 @@ async def delete_vpc(customer_id: int, vpc_id: int):
                 if 'vm_details' in subnet_details:
                     for vm_name, vm_details in subnet_details['vm_details'].items():
                         if vm_details['_Status_']!="Deleted":
-                            subprocess.run(['python3', '../southbound/vm_deleted.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id']), str(vm_details['vm_id'])])
+                            subprocess.run(['python3', '../southbound/delete_container.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id']), str(vm_details['vm_id'])])
                             vm_details['_Status_'] = 'Deleted'
                             vm_details['_Timestamp_'] = datetime.now().isoformat()
 
@@ -633,7 +633,7 @@ async def delete_vpc(customer_id: int, vpc_id: int, subnet_id: int):
                 if 'vm_details' in subnet_details:
                     for vm_name, vm_details in subnet_details['vm_details'].items():
                         if vm_details['_Status_']!="Deleted":
-                            subprocess.run(['python3', '../southbound/vm_deleted.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id']), str(vm_details['vm_id'])])
+                            subprocess.run(['python3', '../southbound/delete_container.py', str(customer_id), str(vpc_id), str(subnet_details['subnet_id']), str(vm_details['vm_id'])])
                             vm_details['_Status_'] = 'Deleted'
                             vm_details['_Timestamp_'] = datetime.now().isoformat()
 
