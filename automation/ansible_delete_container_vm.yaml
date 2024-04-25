@@ -24,6 +24,11 @@
       file:
         path: "{{ script_files_dir }}/{{ vm_id }}"
         state: absent
+        
+    - name: Remove Docker image
+      become: yes
+      command: "sudo docker rmi -f {{ vm_id }}"
+      ignore_errors: yes
 
     - name: Remove DNAT rule for the created VMs
       become: yes
