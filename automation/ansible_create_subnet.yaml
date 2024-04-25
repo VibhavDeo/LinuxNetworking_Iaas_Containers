@@ -36,29 +36,29 @@
       become: yes
       ansible.builtin.command: "sudo ip link set dev {{ br_id }} up"
     
-  #-----------------------------------NETWORK CREATION----------------------------------------------
-    - name: Create the directory
-      ansible.builtin.file:
-        path: "{{ script_files_dir }}/{{ network_id }}"
-        state: directory
+  # #-----------------------------------NETWORK CREATION----------------------------------------------
+  #   - name: Create the directory
+  #     ansible.builtin.file:
+  #       path: "{{ script_files_dir }}/{{ network_id }}"
+  #       state: directory
 
-    - name: Copy network XML files to libvirt directory
-      template:
-        src: "{{ template_dir }}/network_definition.j2"
-        dest: "{{ script_files_dir }}/{{ network_id }}/{{ network_id }}.xml"
-      become: yes
+  #   - name: Copy network XML files to libvirt directory
+  #     template:
+  #       src: "{{ template_dir }}/network_definition.j2"
+  #       dest: "{{ script_files_dir }}/{{ network_id }}/{{ network_id }}.xml"
+  #     become: yes
     
-    - name: Define network
-      community.libvirt.virt_net:
-        command: define
-        name: "{{ network_id }}"
-        xml: "{{ lookup('file', script_files_dir + '/' + network_id + '/' + network_id + '.xml') }}"
-      become: yes
+  #   - name: Define network
+  #     community.libvirt.virt_net:
+  #       command: define
+  #       name: "{{ network_id }}"
+  #       xml: "{{ lookup('file', script_files_dir + '/' + network_id + '/' + network_id + '.xml') }}"
+  #     become: yes
 
-    - name: Start the defined network
-      community.libvirt.virt_net:
-        command: start
-        name: "{{ network_id }}"
+  #   - name: Start the defined network
+  #     community.libvirt.virt_net:
+  #       command: start
+  #       name: "{{ network_id }}"
 
    #----------------------------------- NAMESPACE Connection ---------------------------------------------------- 
     - name: Creat veth pairs between bridge and NS
@@ -95,5 +95,5 @@
 
     - name: Add dnat rule on the other host to redirect the request to the public namespace
       become: yes
-      command: "sudo iptables -t nat -A PREROUTING -p tcp -d 192.168.5.2 --dport {{ dnat_port }} -j DNAT --to-destination 1.1.1.2:{{ dnat_port }}"
+      command: "sudo iptables -t nat -A PREROUTING -p tcp -d 3.3.3.3 --dport {{ dnat_port }} -j DNAT --to-destination 1.1.1.2:{{ dnat_port }}"
       when: inventory_hostname == '192.168.38.11'

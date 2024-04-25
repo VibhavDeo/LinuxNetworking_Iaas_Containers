@@ -1,0 +1,128 @@
+### FIX source.py error
+### FOR MAPPING WHICH HOST SERVER, give different ports to edge server on different hosts
+### add different mapping in dns server (change in dns server code)
+### route to other host after dnat in the vmadm10 host
+### ansible when: inventory_hostname == 'host2' to write tasks specific to hosts (for port number handling)
+
+---
+- name: Provision a new VM in a subnet
+  hosts: my_hosts
+  # hosts: localhost
+  gather_facts: no
+  vars_files:
+    - variables/create_vm_variables.yml
+  # vars:
+  #   network_id: nc2v2s1
+  #   vm_id: vm1c2v2s1
+  #   template_dir: "/home/vmadm/project/automation/jinja_templates"
+  #   script_files_dir: "/home/vmadm/project/subnet_files"
+  #   memory: 1024
+  #   vcpu: 1
+  #   interface_name: enp1s0
+  #   vpc_incoming_port: 4567
+  #   veth_vpns_v_inf: 11.11.11.2
+  #   subnet_ip: 20.1.1.1
+  #   public_router_ip: 1.1.1.2
+  #   public_router_incoming_port: 4567
+  #   vm_ip: 20.1.1.2/24
+  #   vm_ip_nmsk: 20.1.1.2
+  #   vm_port: 8080
+  #   pub_namespace: public
+  #   vpc_id: c2v2 
+
+  tasks:   
+    - name: Create the directory
+      ansible.builtin.file:
+        path: "{{ script_files_dir }}/{{ vm_id }}"
+        state: directory
+      become: yes
+
+    - name: Create the directory
+      ansible.builtin.file:
+        path: "{{ script_files_dir }}/{{ vm_id }}/files"
+        state: directory
+      become: yes
+
+    - name: Create a dockerignore file
+      become: yes
+      file:
+        path: "{{ script_files_dir }}/{{ vm_id }}/files/.dockerignore"
+        state: touch
+        mode: "0644"
+
+    - name: Copy file Dockerfile
+      copy:
+        src: Dockerfile
+        dest: "{{ script_files_dir }}/{{ vm_id }}/Dockerfile"
+
+    - name: Copy text file
+      become: yes
+      copy:
+          src: optional.txt
+          dest: "{{ script_files_dir }}/{{ vm_id }}/files/optional.txt"
+
+    - name: Copy python server file
+      become: yes
+      copy:
+          src: source.py
+          dest: "{{ script_files_dir }}/{{ vm_id }}/files/source.py"
+
+    - name: Build the image
+      become: yes
+      command: "sudo docker build -t {{vm_id}} ."
+      args:
+        chdir: "{{ script_files_dir }}/{{ vm_id }}"
+
+    - name: Create container
+      become: yes
+      command: "sudo docker run -it --cpus=\"1\" --memory=1g -d --name {{vm_id}}_c -h {{vm_id}}_c {{vm_id}}"
+      args:
+        chdir: "{{ script_files_dir }}/{{ vm_id }}"
+
+    - name: Expose container namespace
+      become: yes
+      command: "sudo sh /home/vmadm/project/automation/create_ns.sh {{ vm_id }}_c"
+    
+    - name: Create veth pairs
+      become: yes
+      command: "sudo ip link add ve_{{ vm_id }}_vm type veth peer name ve_{{ vm_id }}_b"
+   
+    - name: Attach VM NS to the NS ends of the veth pairs
+      become: yes
+      command: "sudo ip link set ve_{{ vm_id }}_vm netns {{ vm_id }}_c"
+
+    - name: Attach to the subnet bridge ends of the veth pairs
+      become: yes
+      command: "sudo ip link set ve_{{ vm_id }}_b master {{ br_id }}"
+
+    - name: Up the NS interface
+      become: yes
+      command: "sudo ip netns exec {{ vm_id }}_c ip link set ve_{{ vm_id }}_vm up"
+
+    - name: Up the Bridge interface
+      become: yes
+      command: "sudo ip link set ve_{{ vm_id }}_b up"
+    
+    - name: Add IP address to the container NS end
+      become: yes
+      command: "sudo ip netns exec {{ vm_id }}_c ip addr add {{vm_ip}} dev ve_{{ vm_id }}_vm"
+
+    - name: delete default route
+      become: yes
+      command: "sudo ip netns exec {{ vm_id }}_c ip route del default"
+
+    - name: Add default route
+      become: yes
+      command: "sudo ip netns exec {{ vm_id }}_c ip route add default via {{ subnet_ip }} dev ve_{{ vm_id }}_vm"
+
+    - name: Configure the DNS
+      become: yes
+      command: "sudo ip netns exec {{ vm_id }}_c sed -i 's/^nameserver 127.0.0.53/nameserver 8.8.8.8/' /etc/resolv.conf"
+
+    - name: Add a DNAT rule for the created VMs
+      become: yes
+      command: "sudo ip netns exec {{ vpc_id }} iptables -t nat -A PREROUTING -p tcp -d {{ veth_vpns_v_inf }} --dport {{ vpc_incoming_port }} -j DNAT --to-destination {{ vm_ip_nmsk }}:{{ vm_port }}"
+
+    - name: Add a DNAT rule for public to private router 
+      become: yes
+      command: "sudo ip netns exec {{ pub_namespace }} iptables -t nat -A PREROUTING -p tcp -d {{ public_router_ip }} --dport {{ public_router_incoming_port }} -j DNAT --to-destination {{ veth_vpns_v_inf }}:{{ vpc_incoming_port }}"

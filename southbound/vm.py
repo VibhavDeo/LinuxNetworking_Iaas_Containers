@@ -39,6 +39,7 @@ for client, client_data in data.items():
                                 port = subnet_info["incoming_dnat_routing_port"]
                                 v_id = f'c{customer_id}v{vpc_id}'
                                 sn_id = f'{v_id}s{subnet_id}'
+                                br_id = f'b{sn_id}'
                                 network_id = f'n{sn_id}'
                                 vm_ip = '.'.join(subnet_ip.split('.')[:-1]) + '.'+str(vm_id)+'/' + subnet_mask
                                 vm_ip_nmsk = '.'.join(subnet_ip.split('.')[:-1]) + '.'+str(vm_id)
@@ -64,7 +65,8 @@ for client, client_data in data.items():
                                     "vm_ip_nmsk": vm_ip_nmsk,
                                     "vm_id": vm_id,
                                     "memory": memory,
-                                    "vcpu": vcpu
+                                    "vcpu": vcpu,
+                                    "br_id": br_id
                                 }
 
 os.makedirs(os.path.dirname(yaml_file_path), exist_ok=True)
