@@ -3,7 +3,7 @@
   hosts: my_hosts
   gather_facts: no
   vars_files:
-    - variables/delete_container+_variables.yml
+    - variables/delete_container_variables.yml
 
   tasks:
     - name: Stop and remove container
@@ -14,10 +14,10 @@
       become: yes
       command: "sudo ip netns del {{ vm_id }}_c"
 
-    - name: Delete veth pairs
-      become: yes
-      command: "sudo ip link delete ve_{{ vm_id }}_vm"
-      ignore_errors: yes
+    # - name: Delete veth pairs
+    #   become: yes
+    #   command: "sudo ip link delete ve_{{ vm_id }}_vm"
+    #   ignore_errors: yes
 
     - name: Delete directory containing Dockerfile and files
       become: yes
