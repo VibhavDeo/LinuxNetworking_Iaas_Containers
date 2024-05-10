@@ -40,6 +40,9 @@
     - name: Assign IP address to each veth endpoint interface- namespace
       ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip addr add {{ vpc_ep_ip }} dev {{ep_in_vpc}}"
 
+    - name: Delete default route created by docker
+      ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip route del default"
+
     - name: Add default route to the NS
       ansible.builtin.command: "sudo ip netns exec {{ vpc_id }} ip route add default via {{ pub_ns_ip }} dev {{ep_in_vpc}}"
 

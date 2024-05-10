@@ -1,0 +1,41 @@
+---
+- name: Delete resources created by Provisioning playbook
+  hosts: my_hosts
+  gather_facts: no
+  vars_files:
+    - variables/delete_container_variables.yml
+
+  tasks:
+    - name: Stop and remove container
+      become: yes
+      command: "sudo docker rm -f {{ vm_id }}_c"
+
+    - name: Remove container namespace
+      become: yes
+      command: "sudo ip netns del {{ vm_id }}_c"
+
+    # - name: Delete veth pairs
+    #   become: yes
+    #   command: "sudo ip link delete ve_{{ vm_id }}_vm"
+    #   ignore_errors: yes
+
+    - name: Delete directory containing Dockerfile and files
+      become: yes
+      file:
+        path: "{{ script_files_dir }}/{{ vm_id }}"
+        state: absent
+        
+    - name: Remove Docker image
+      become: yes
+      command: "sudo docker rmi -f {{ vm_id }}"
+      ignore_errors: yes
+
+    - name: Remove DNAT rule for the created VMs
+      become: yes
+      command: "sudo ip netns exec {{ vpc_id }} iptables -t nat -D PREROUTING -p tcp -d {{ veth_vpns_v_inf }} --dport {{ vpc_incoming_port }} -j DNAT --to-destination {{ vm_ip_nmsk }}:{{ vm_port }}"
+      ignore_errors: yes
+
+    - name: Remove DNAT rule for public to private router
+      become: yes
+      command: "sudo ip netns exec {{ pub_namespace }} iptables -t nat -D PREROUTING -p tcp -d {{ public_router_ip }} --dport {{ public_router_incoming_port }} -j DNAT --to-destination {{ veth_vpns_v_inf }}:{{ vpc_incoming_port }}"
+      ignore_errors: yes
