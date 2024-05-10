@@ -18,9 +18,11 @@ In this digital era where content creation and consumption are rising exponentia
 
 We have structured the implementation into two distinct components: Northbound and Southbound.
 1. Northbound: The Northbound component serves as the interface through which tenants interact with the cloud infrastructure as well as the CDN service.
-
+\
+\
 1.1. IaaS: The IaaS northbound APIs ease the customers' interaction with the underlying services. Here, tenants provide their specific requirements and specifications using YAML files. These files contain details such as the number of VPCs to be deployed and the subnet details for the infrastructure. The users can then deploy their machines on these subnets by providing the specifications. Users are also allowed to specify a python file if they want to run something on the newly deployed server.
-
+\
+\
 1.2. CDNaaS: The CDNaaS northbound asks the users to provide the application they want to provide the CDN capability for along with the locations at which the user wants to deploy the edge server. This calls the IaaS northbound for the further deployment of infrastructure required for the cDN.
 
 2. Southbound: The Southbound component is responsible for automating the creation of the underlying infrastructure after a tenant requests it using the Northbound API. Upon receiving processed input from the Northbound, the Southbound component initiates multiple Python scripts to execute various tasks required for infrastructure deployment. These scripts leverage Ansible playbooks for the creation of namespaces, containers, subnets, and VMs, ensuring that the cloud infrastructure is set up according to the tenant's requirements.
