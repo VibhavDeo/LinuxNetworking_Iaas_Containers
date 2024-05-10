@@ -38,9 +38,11 @@ We have structured the implementation into two distinct components: Northbound a
 1. Logging and Monitoring: We created a logging system for the customers of CDN where a customer requests for their logs then an API call would return information about their edge server creations ( like the timestamp of creation, location of edge server, and ID of the VM) and the logs would also contain information about the requests made to that server.We also added a feature of logging in our infrastructure such that for a particular customer we would show all the logs related to that customer. These logs would contain information about the creation of customer’s VPC, Subnet, and VMs.
    
 2. Fault tolerance and High Availability: We integrated our other Host machine into our infrastructure with each resource having a replica running on this backup host machine. This would be useful in case any of the services/ servers are down in our main host machine then the resources in our backup machine would be used and the services would not be affected. 
-Security against attacks: In situations where the nearest edge server may be compromised and unable to respond within a set time, we have enabled the service to fetch data from the next closest edge.
 
-3. DNS: A critical non-functional requirement of our project is the reliable and efficient management of Domain Name System (DNS) services. DNS plays a pivotal role in translating user-friendly domain names into IP addresses, facilitating the resolution of web addresses, and the routing of network traffic. We also added load balancing to the DNS servers by actively distributing the requests among the DNS servers in 2 different host machines. 
-Load Balancing: Our project provides load-balancing mechanisms to optimize resource utilization and ensure high availability and performance across our infrastructure.
+3. Security against attacks: In situations where the nearest edge server may be compromised and unable to respond within a set time, we have enabled the service to fetch data from the next closest edge.
+
+4. DNS: A critical non-functional requirement of our project is the reliable and efficient management of Domain Name System (DNS) services. DNS plays a pivotal role in translating user-friendly domain names into IP addresses, facilitating the resolution of web addresses, and the routing of network traffic. We also added load balancing to the DNS servers by actively distributing the requests among the DNS servers in 2 different host machines. 
+
+5. Load Balancing: Our project provides load-balancing mechanisms to optimize resource utilization and ensure high availability and performance across our infrastructure.
 
 
